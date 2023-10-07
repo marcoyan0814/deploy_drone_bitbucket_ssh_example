@@ -1,13 +1,34 @@
 kind: pipeline
 name: default
 
+# 使用 x86_64
+# platform:
+#   os: linux
+#   arch: amd64
+
 # 不拉取
 clone:
   disable: true
 
 steps:
+  # 使用 laradock PHP 8.1 進行 unit test (需要把拉取打開)
+  # - name: unit test
+  #   # 不存在才拉取
+  #   pull: if-not-exists
+  #   image: laradock/workspace:latest-8.1
+  #   commands:
+  #     - php -v
+  #     - composer -V
+  #     - composer install --prefer-dist
+  #     - cp .env.ci .env
+  #     - php artisan optimize:clear
+  #     - ./vendor/bin/pest --profile
+
   - name: deploy
     image: ghcr.io/appleboy/drone-ssh
+    # 不存在才拉取
+    pull: if-not-exists
+    # 定義環境變數
     environment:
       # 這邊要大寫
       PROJECT_PATH:
