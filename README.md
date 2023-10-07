@@ -1,2 +1,2 @@
-# deply_drone_bitbucket_ssh_example
+# deploy_drone_bitbucket_ssh_example
 drone CI bitbucket + ssh example
