@@ -1,0 +1,36 @@
+kind: pipeline
+name: default
+
+# 不拉取
+clone:
+  disable: true
+
+steps:
+  - name: deploy
+    image: ghcr.io/appleboy/drone-ssh
+    environment:
+      # 這邊要大寫
+      PROJECT_PATH:
+        from_secret: project_path
+    settings:
+      host:
+        from_secret: SSH_HOST
+      username:
+        from_secret: SSH_USERNAME
+      key:
+        from_secret: SSH_PRIVATE_KEY
+      port: 22
+      command_timeout: 2m
+      envs:
+        # 這邊要小寫，然後在 script 裡要大寫
+        - project_path
+      script:
+        - cd $PROJECT_PATH
+        # 拉取
+        - git pull
+        # 設定權限
+        - chown nginx:nginx -R $PROJECT_PATH
+        - chmod 775 -R $PROJECT_PATH
+        - ls -l
+        # 顯示最後5筆commit
+        - git --no-pager log --decorate=short --pretty=oneline -n5 | cut -c 1-$COLUMNS

@@ -1,0 +1,64 @@
+version: "3.8"
+services:
+    drone:
+        image: drone/drone:latest
+        container_name: drone.server
+        depends_on:
+            db:
+                condition: service_healthy
+        ports:
+            # 對外的 port 可自由修改，需搭配 nginx 做反向代理
+            - 8080:80
+        environment:
+            - DRONE_SERVER_HOST=改為您的網址(例如 ci.abc.com)
+            # 這邊使用http，若有使用https，請改為https
+            - DRONE_SERVER_PROTO=http
+            # SECRET 可以自訂，只要與 runner 的一致即可
+            - DRONE_RPC_SECRET=ABCDEFGHIJK
+            - DRONE_COOKIE_SECRET=0123456789
+            - DRONE_COOKIE_TIMEOUT=720h
+            # 改為bitbucket OAuth 的資料
+            - DRONE_BITBUCKET_CLIENT_ID=你bitbucket的OAuth的Key
+            - DRONE_BITBUCKET_CLIENT_SECRET=你bitbucket的OAuth的Secret
+            - DRONE_LOGS_DEBUG=true
+            - DRONE_CRON_DISABLED=true
+            - DRONE_DATABASE_DRIVER=postgres
+            - DRONE_DATABASE_DATASOURCE=postgres://postgres:postgres@db:5432/drone?sslmode=disable
+            - DRONE_REDIS_CONNECTION=redis://redis-server:6379
+            # 設為bitbucket的帳號名並給予管理者權限
+            - DRONE_USER_CREATE=username:改為你bitbucket的帳號名,admin:true
+            # 僅允許此帳號註冊
+            # - DRONE_USER_FILTER=改為你bitbucket的帳號名
+            # 不允許註冊
+            - DRONE_REGISTRATION_CLOSED=true
+            # 設定時區
+            - TZ=Asia/Taipei
+    runner:
+        image: drone/drone-runner-docker:latest
+        container_name: drone.runner
+        environment:
+        - DRONE_RPC_HOST=drone
+        - DRONE_RPC_PROTO=http
+        - DRONE_RPC_SECRET=ABCDEFGHIJK
+        - DRONE_TMATE_ENABLED=true
+        # 設定時區
+        - TZ=Asia/Taipei
+        volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+        - drone
+    redis-server:
+      image: redis
+      container_name: redis
+    db:
+        image: postgres
+        container_name: postgres
+        environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_DB=drone
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
