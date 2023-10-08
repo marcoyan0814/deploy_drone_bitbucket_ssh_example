@@ -28,6 +28,10 @@ steps:
     image: ghcr.io/appleboy/drone-ssh
     # 不存在才拉取
     pull: if-not-exists
+    # 當branch為main時才執行
+    when:
+      branch:
+        - main
     # 定義環境變數
     environment:
       # 這邊要大寫
