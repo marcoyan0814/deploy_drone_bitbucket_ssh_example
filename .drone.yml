@@ -6,11 +6,30 @@ name: default
 #   os: linux
 #   arch: amd64
 
-# 不拉取
+# clone 條件
 clone:
+  # 只取得最近一次commit
+  # depth: 1
+  # 不拉取
   disable: true
 
+# 工作目錄
+# workspace:
+#   path: /var/www/html
+
 steps:
+  # 取得 cache vendor 檔案
+  # - name: rebuild-cache
+  #   image: drillster/drone-volume-cache
+  #   pull: if-not-exists
+  #   volumes:
+  #     - name: cache
+  #       path: /cache
+  #   settings:
+  #     rebuild: true
+  #     mount:
+  #       - ./vendor
+
   # 使用 laradock PHP 8.1 進行 unit test (需要把拉取打開)
   # - name: unit test
   #   # 不存在才拉取
@@ -23,6 +42,18 @@ steps:
   #     - cp .env.ci .env
   #     - php artisan optimize:clear
   #     - ./vendor/bin/pest --profile
+
+  # 重建 vendor cache
+  # - name: rebuild-cache
+  #   image: drillster/drone-volume-cache
+  #   pull: if-not-exists
+  #   volumes:
+  #     - name: cache
+  #       path: /cache
+  #   settings:
+  #     rebuild: true
+  #     mount:
+  #       - ./vendor
 
   - name: deploy
     image: ghcr.io/appleboy/drone-ssh
@@ -59,3 +90,13 @@ steps:
         - ls -l
         # 顯示最後5筆commit
         - git --no-pager log --decorate=short --pretty=oneline -n5 | cut -c 1-$COLUMNS
+# 快取 volumes
+# volumes:
+#   - name: cache
+#     host:
+#       path: /tmp/cache
+
+# 觸發 pipeline 的條件，如果是在 steps 內可使用 when
+trigger:
+  branch:
+    - main
