@@ -77,6 +77,8 @@ server {
 Settings 頁籤內將 Trusted 打勾
 
 # 設定相關 Secrets 
+ (大小寫要與 .drone.yml 內的 from_secret 一致)   
+  
 PROJECT_PATH 設定測試機上的專案路徑，ex: /home/www
 SSH_HOST 設定測試機主機位置，ex: ci.abc.com 
 SSH_PRIVATE_KEY 將先前產生的 deploy-ssh (private key) 內容貼至此

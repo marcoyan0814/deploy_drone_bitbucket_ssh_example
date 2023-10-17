@@ -67,7 +67,7 @@ steps:
     environment:
       # 這邊要大寫
       PROJECT_PATH:
-        from_secret: project_path
+        from_secret: PROJECT_PATH
     settings:
       host:
         from_secret: SSH_HOST
